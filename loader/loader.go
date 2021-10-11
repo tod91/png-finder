@@ -13,16 +13,24 @@ type pngData struct {
 }
 
 type Loader struct {
-	Root                  string
+	SrcRoot, DestRoot     string
 	SrcImages, DestImages []pngData
 }
 
-func (l *Loader) SetRootPath(newPath string) {
-	l.Root = newPath
+func (l *Loader) SetRootSrcPath(newPath string) {
+	l.SrcRoot = newPath
 }
 
 func (l *Loader) GetRootSrcPath() string {
-	return l.Root
+	return l.SrcRoot
+}
+
+func (l *Loader) SetRootDestPath(newPath string) {
+	l.DestRoot = newPath
+}
+
+func (l *Loader) GetRootDestPath() string {
+	return l.DestRoot
 }
 
 func (l *Loader) LoadSrcImages() {
@@ -31,7 +39,7 @@ func (l *Loader) LoadSrcImages() {
 		log.Fatal(e)
 	}
 
-	e = filepath.Walk(l.Root, func(path string, info os.FileInfo, err error) error {
+	e = filepath.Walk(l.SrcRoot, func(path string, info os.FileInfo, err error) error {
 		if err == nil && libRegEx.MatchString(info.Name()) {
 			tmp := pngData{
 				Image: info.Name(),
@@ -52,7 +60,7 @@ func (l *Loader) LoadDestImages() {
 		log.Fatal(e)
 	}
 
-	e = filepath.Walk(l.Root, func(path string, info os.FileInfo, err error) error {
+	e = filepath.Walk(l.DestRoot, func(path string, info os.FileInfo, err error) error {
 		if err == nil && libRegEx.MatchString(info.Name()) {
 			tmp := pngData{
 				Image: info.Name(),

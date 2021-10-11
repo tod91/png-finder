@@ -5,6 +5,7 @@ import (
 	"finder/loader"
 	"flag"
 	"fmt"
+	"sync"
 )
 
 func main() {
@@ -17,14 +18,24 @@ func main() {
 	flag.Parse()
 
 	var l loader.Loader
+	var wg sync.WaitGroup
 	switch {
 	case src != "":
-		l.SetRootPath(src)
-		l.LoadSrcImages()
+		l.SetRootSrcPath(src)
+		wg.Add(1)
+		func() {
+			go l.LoadSrcImages()
+			wg.Done()
+		}()
 		fallthrough
 	case dest != "":
-		l.SetRootPath(dest)
-		l.LoadDestImages()
+		l.SetRootDestPath(dest)
+		wg.Add(1)
+		func() {
+			go l.LoadDestImages()
+			wg.Done()
+		}()
+		wg.Wait()
 	}
 
 	for _, src := range l.SrcImages {
