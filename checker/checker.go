@@ -1,28 +1,30 @@
 package checker
 
 import (
-	"github.com/vitali-fedulov/images/v2"
+	"crypto/sha256"
+	"encoding/hex"
+	"io/ioutil"
+	"log"
 )
 
 func Equal(src, dest string) bool {
+	return getHash(src) == getHash(dest)
+}
 
-	// Open photos.
-	imgA, err := images.Open(src)
+var cache = map[string]string{}
+
+func getHash(file string) string {
+	if r, ok := cache[file]; ok {
+		return r
+	}
+
+	hasher := sha256.New()
+	s, err := ioutil.ReadFile(file)
+	hasher.Write(s)
 	if err != nil {
-		panic(err)
-	}
-	imgB, err := images.Open(dest)
-	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 
-	// Calculate hashes and image sizes.
-	hashA, imgSizeA := images.Hash(imgA)
-	hashB, imgSizeB := images.Hash(imgB)
-
-	// Image comparison.
-	if images.Similar(hashA, hashB, imgSizeA, imgSizeB) {
-		return true
-	}
-	return false
+	cache[file] = hex.EncodeToString(hasher.Sum(nil))
+	return cache[file]
 }

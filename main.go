@@ -18,26 +18,25 @@ func main() {
 	flag.Parse()
 
 	var l loader.Loader
-	var wg sync.WaitGroup
+	var wg1 sync.WaitGroup
 	switch {
 	case src != "":
 		l.SetRootSrcPath(src)
-		wg.Add(1)
-		func() {
-			go l.LoadSrcImages()
-			wg.Done()
+		wg1.Add(1)
+		go func() {
+			defer wg1.Done()
+			l.LoadSrcImages()
 		}()
 		fallthrough
 	case dest != "":
 		l.SetRootDestPath(dest)
-		wg.Add(1)
-		func() {
-			go l.LoadDestImages()
-			wg.Done()
+		wg1.Add(1)
+		go func() {
+			defer wg1.Done()
+			l.LoadDestImages()
 		}()
 	}
-
-	wg.Wait()
+	wg1.Wait()
 
 	for _, src := range l.SrcImages {
 		for _, dest := range l.DestImages {
