@@ -35,8 +35,9 @@ func main() {
 			go l.LoadDestImages()
 			wg.Done()
 		}()
-		wg.Wait()
 	}
+
+	wg.Wait()
 
 	for _, src := range l.SrcImages {
 		for _, dest := range l.DestImages {
